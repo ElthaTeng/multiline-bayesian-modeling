@@ -36,7 +36,7 @@ This document lists the general workflow and explains the usage of each script. 
   * *region_stat.py*: return all kinds of statistics within each defined region
 
 
-## 4. Run pixel-by-pixel modeling over the whole map 
+## 4. Run pixel-by-pixel modeling over the whole maps 
 
 * *model_maps_nocov.py*: return maps of the solutions for all directly modeled paramters as numpy arrays
   * Various options of output map type: 'bestfit', '1dmax', 'median_interp', 'median', and 'mean'. 
