@@ -147,17 +147,17 @@ elif plot_type == 'bin_2d':
 ## Optional add ons for the plot
 # plt.axhline(0., c='k', linestyle='--')
 # plt.axvline(np.log10(5), c='k', linestyle=':')
-plt.plot(np.log10(0.82), np.log10(0.08), marker='+', c='k', mew=2, ms=12)
+plt.plot(np.log10(0.82), np.log10(0.08), 'k+', mew=2, ms=12, label='NGC3351 Inflows')
 
 ## alpha vs ratio21
 # plt.plot(np.arange(0.6, 1.8, 0.1), (np.arange(0.6, 1.8, 0.1) * -0.40 + 0.23), 'k--')
-# plt.plot(np.log10(6), np.log10(4.35), marker='*', c='tab:blue', mew=2, ms=10)
-# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.69, 0.48), xycoords='data', color='tab:blue') 
+# plt.plot((np.log10(6), np.log10(6)), (np.log10(4.35/3), np.log10(4.35)), marker='*', color='tab:blue', mew=2, ms=10, ls=':')
+# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.8, 0.4), xycoords='data', color='tab:blue')  
 
 ## alpha vs ew21
 # plt.plot(np.arange(0.85, 1.95, 0.1), (np.arange(0.85, 1.95, 0.1) * -0.63 + 0.61), 'k--') 
-# plt.plot(np.log10(5), np.log10(4.35), marker='*', c='tab:blue', mew=2, ms=10)
-# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.68, 0.48), xycoords='data', color='tab:blue')
+# plt.plot((np.log10(5), np.log10(5)), (np.log10(4.35/3), np.log10(4.35)), marker='*', c='tab:blue', mew=2, ms=10, ls=':')
+# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.73, 0.4), xycoords='data', color='tab:blue')
 
 if compare_alpha:
     plt.plot(x_range_G20, alpha_Gong, 'k--', lw=1.5)
