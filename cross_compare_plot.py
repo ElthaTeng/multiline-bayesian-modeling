@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from scipy import stats
 
-plot_type = 'bin_2d'  #'scatter'  #'run_med'  #
-colorcode = True  #False  #
+plot_type = 'scatter'  #'run_med'  #'bin_2d'  #
+colorcode = False  #True  #
 compare_alpha = False  #'R21'  #'Ico10'  #'Tpeak10'  #
 
 def as2kpc(x, dist_Mpc):
     factor = dist_Mpc * 10**6 / 206265 / 1000
     return x * factor
 
-def plot_medians(data_x, data_y, color, num_bins=10, label=None):
+def plot_medians(data_x, data_y, style, num_bins=10, label=None):
     bins = np.linspace(np.nanmin(data_x), np.nanmax(data_x), num_bins)
     delta = bins[1] - bins[0]
     argsort = np.argsort(data_x)
@@ -19,11 +19,11 @@ def plot_medians(data_x, data_y, color, num_bins=10, label=None):
     data_y = data_y[argsort]
 
     running_median = [np.nanmedian(data_y[idx==k]) for k in range(num_bins)]
-    plt.plot(bins-delta/2, running_median, color=color, ls='-', lw=2, marker='o', ms=5, label=label)
+    plt.plot(bins-delta/2, running_median, color=style[:-1], marker=style[-1], ls='-', lw=2, ms=5, label=label)
 
     running_prc25 = [np.nanpercentile(data_y[idx==k], 25) for k in range(num_bins)]
     running_prc75 = [np.nanpercentile(data_y[idx==k], 75) for k in range(num_bins)]
-    plt.fill_between(bins-delta/2, running_prc25, running_prc75, color=color, alpha=0.2)
+    plt.fill_between(bins-delta/2, running_prc25, running_prc75, color=style[:-1], alpha=0.2)
 
     print(running_prc25, running_prc75)
     return
@@ -32,9 +32,9 @@ def alpha_Teng(logtau, logT):
     alpha = 0.78 * logtau - 0.18 * logT - 0.84
     return alpha
 
-labels = np.array((r'$\log\ T_{k}$ (K)', r'$\log\ \Delta v_{CO(2-1)}$ (km/s)', r'$\log\ I_{CO(1-0)}$ (K km s$^{-1}$)', r'$\log\ \alpha_{CO}$', r'$\log\ \tau_{CO(2-1)}$', 
-        r'$\log\ n_{H_2}$ (cm$^{-3}$)', r'$\log\ n_{H_2}^{(3\ lines)}$', r'$\log(\sqrt{n_{H_2}} / T_k)$', r'$X_{12/13}$', r'$\log$ CO/$^{13}$CO 2-1', r'modeled CO 3-2/2-1', 
-        r'$\log\ R_{21}$', r'$\log \left[ N_{CO}^{(6\ lines)}\cdot\frac{15\ km\ s^{-1}}{\Delta v}\right]$', r'$\log \left[ N_{CO} \cdot\frac{15\ km\ s^{-1}}{\Delta v}\right]$')) 
+labels = np.array((r'$\log T_{peak}$ (K)', r'$\log\ T_{k}^{(3\ lines)}$ (K)', r'$\Delta v_{CO(2-1)}$ (km/s)', r'$\log I_{CO(1-0)}$ (K km s$^{-1}$)', r'$\log \alpha_{CO}$', 
+        r'$\log\ \tau_{CO(2-1)}$', r'$\log\ n_{H_2}$ (cm$^{-3}$)', r'$\log\ n_{H_2}^{(4\ lines)}$', r'$\log(\sqrt{n_{H_2}} / T_k)$', r'$X_{12/13}$', r'$\log$ CO/$^{13}$CO 2-1', 
+        r'modeled CO 3-2/2-1', r'$\log R_{21}$', r'$\log \left[ N_{CO}^{(4\ lines)}\cdot\frac{15\ km\ s^{-1}}{\Delta v}\right]$', r'$\log \left[ N_{CO}^{(6\ lines)}\cdot\frac{15\ km\ s^{-1}}{\Delta v}\right]$')) 
 
 data_x = [np.full((75,75), np.nan), np.full((105,105), np.nan), np.full((125,125), np.nan)]
 data_y = [np.full((75,75), np.nan), np.full((105,105), np.nan), np.full((125,125), np.nan)]
@@ -49,23 +49,23 @@ R_eff = np.array((3., 3.6, 5.5))  #kpc
 for count, source in enumerate(['NGC3351','NGC3627', 'NGC4321']):  #  
     if count == 0:
         if colorcode:
-            color[count] = np.log10(np.load(source+'/data_image/ratio_CO21_13CO21_broad.npy')) 
+            color[count] = np.log10(np.load(source+'/data_image/ratio_CO21_13CO21_broad.npy'))  
 
-        mask = np.load(source+'/mask_whole_recovered.npy') * np.load(source+'/mask_armscent.npy') * np.load(source+'/mask_rmcor_comb_lowchi2.npy') 
-            #* np.isfinite(np.log10(np.load(source+'/data_image/ratio_CO21_13CO21_broad.npy')))        
-        data_x[count] = np.load(source+'/radex_model/tau_6d_coarse2_'+source+'_co21_median_los200.npy') * mask  
-        data_y[count] = np.load(source+'/radex_model/Xco_6d_coarse_ewsame_median_los100.npy') * mask  
+        mask = np.load(source+'/mask_whole_recovered.npy') * np.load(source+'/mask_cent3sig.npy') * np.load(source+'/mask_rmcor_comb_lowchi2.npy') 
+                #* np.isfinite(np.log10(np.load(source+'/data_image/ratio_CO21_13CO21_broad.npy'))) 
+        data_x[count] = np.log10(fits.open(source+'/data_image/'+source+'_CO21_ew_broad_nyq.fits')[0].data) * mask  
+        data_y[count] = np.load(source+'/radex_model/Xco_6d_coarse_ewsame_median_los100.npy') * mask 
         data_x[count][mask==0] = np.nan
         data_x[count][~np.isfinite(data_x[count])] = np.nan
         data_y[count][mask==0] = np.nan 
 
     else:
         if colorcode:
-            color[count] = np.log10(np.load(source+'/data_image/ratio_CO21_13CO21_broad.npy')) 
+            color[count] = np.log10(np.load(source+'/data_image/ratio_CO21_13CO21_broad.npy'))  # 
 
         mask = np.load(source+'/mask_13co21_3sig.npy') * np.load(source+'/mask_recovered_0.3.npy') * (np.load(source+'/data_image/'+source+'_CO21_mom0.npy') > 50) 
-        data_x[count] = np.load(source+'/radex_model/tau_6d_coarse2_'+source+'_co21_median_los200.npy') * mask  
-        data_y[count] = np.load(source+'/radex_model/Xco_6d_coarse2_'+source+'_ewsame_median_los200.npy') * mask  
+        data_x[count] = np.log10(fits.open(source+'/data_image/'+source+'_CO21_ew_broad_nyq.fits')[0].data) * mask  
+        data_y[count] = np.load(source+'/radex_model/Xco_6d_coarse2_'+source+'_ewsame_median_los200.npy') * mask 
         data_x[count][mask==0] = np.nan
         data_y[count][mask==0] = np.nan
 
@@ -98,14 +98,14 @@ plt.tick_params(axis="x", labelsize=14)
 plt.tick_params(axis="y", labelsize=14, labelleft=True)  #
 
 if plot_type == 'run_med':
-    total_bins = 10
-    for count, (source, color) in enumerate(zip(['NGC3351', 'NGC3627', 'NGC4321'], ['r','b','g'])):  # 
+    total_bins = 8
+    for count, (source, style) in enumerate(zip(['NGC3351', 'NGC3627', 'NGC4321'], ['r^','bo','gs'])):  # 
         data_x_flat = data_x[count].reshape(-1)
         data_y_flat = data_y[count].reshape(-1)
         if compare_alpha == 'Ico10':
-            plot_medians(data_x_flat, data_y_flat, color, total_bins, None) 
+            plot_medians(data_x_flat, data_y_flat, style, total_bins, None) 
         else:
-            plot_medians(data_x_flat, data_y_flat, color, total_bins, source) 
+            plot_medians(data_x_flat, data_y_flat, style, total_bins, source) 
         
 
 elif plot_type == 'scatter':
@@ -118,9 +118,9 @@ elif plot_type == 'scatter':
         cb.ax.set_title(labels[0], fontsize=14)
     else: 
         data_x[0][data_x[0] < -1.5] = np.nan
-        plt.scatter(data_x[0], data_y[0], c='darkred', s=5, label='NGC3351') 
-        plt.scatter(data_x[1], data_y[1], c='darkblue', s=5, label='NGC3627')  #, alpha=0.8
-        plt.scatter(data_x[2], data_y[2], c='darkgreen', s=5, label='NGC4321')  #, alpha=0.5
+        plt.scatter(data_x[0], data_y[0], facecolor='darkred', s=25, label='NGC3351', marker='^', edgecolor='k', linewidth=0) 
+        plt.scatter(data_x[1], data_y[1], facecolor='darkblue', s=15, label='NGC3627', marker='o', edgecolor='k', linewidth=0, alpha=0.8)  #
+        plt.scatter(data_x[2], data_y[2], facecolor='darkgreen', s=15, label='NGC4321', marker='s', edgecolor='k', linewidth=0, alpha=0.5)  #
 
 elif plot_type == 'bin_2d':
     X = np.concatenate((data_x[0].reshape(-1), data_x[1].reshape(-1), data_x[2].reshape(-1)))
@@ -144,37 +144,37 @@ elif plot_type == 'bin_2d':
     cb.ax.set_title(labels[9], fontsize=14)
     cb.ax.plot([0,1], [0.78]*2, 'w', lw=1)
 
-## Optional add ons for the plot
-# plt.axhline(0., c='k', linestyle='--')
+'''Optional add ons for the plot'''
+# plt.axhline(10., c='k', linestyle='--')
 # plt.axvline(np.log10(5), c='k', linestyle=':')
-plt.plot(np.log10(0.82), np.log10(0.08), 'k+', mew=2, ms=12, label='NGC3351 Inflows')
-
+# plt.plot(np.arange(16, 19.5, 0.1), np.arange(16, 19.5, 0.1), 'k--', lw=2) #1, 2.4 #2.2, 4.4
+# plt.plot(np.log10(0.82), np.log10(0.08), 'k+', mew=2, ms=12, label='NGC3351 Inflows')
 ## alpha vs ratio21
 # plt.plot(np.arange(0.6, 1.8, 0.1), (np.arange(0.6, 1.8, 0.1) * -0.40 + 0.23), 'k--')
 # plt.plot((np.log10(6), np.log10(6)), (np.log10(4.35/3), np.log10(4.35)), marker='*', color='tab:blue', mew=2, ms=10, ls=':')
-# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.8, 0.4), xycoords='data', color='tab:blue')  
-
+# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.8, 0.4), xycoords='data', color='tab:blue') 
 ## alpha vs ew21
-# plt.plot(np.arange(0.85, 1.95, 0.1), (np.arange(0.85, 1.95, 0.1) * -0.63 + 0.61), 'k--') 
-# plt.plot((np.log10(5), np.log10(5)), (np.log10(4.35/3), np.log10(4.35)), marker='*', c='tab:blue', mew=2, ms=10, ls=':')
-# plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.73, 0.4), xycoords='data', color='tab:blue')
+plt.plot(np.arange(0.85, 1.95, 0.1), (np.arange(0.85, 1.95, 0.1) * -0.63 + 0.61), 'k--') 
+plt.plot((np.log10(5), np.log10(5)), (np.log10(4.35/3), np.log10(4.35)), marker='*', c='tab:blue', mew=2, ms=10, ls=':')
+plt.annotate('MW disk', weight='bold', fontsize=12, xy=(0.73, 0.4), xycoords='data', color='tab:blue')
 
 if compare_alpha:
     plt.plot(x_range_G20, alpha_Gong, 'k--', lw=1.5)
-    plot_medians(Gong_data, Gong_alphaCO, color='0.5', label='Gong+20 (2-pc)')
-    plot_medians(Gong_data_2, Gong_alphaCO_2, 'tab:brown', label='Gong+20 (128-pc)') 
+    plot_medians(Gong_data, Gong_alphaCO, '0.5P', label='Gong+20 (2-pc)')
+    plot_medians(Gong_data_2, Gong_alphaCO_2, 'tab:brownd', label='Gong+20 (128-pc)') 
 
     if compare_alpha == 'Ico10':
-        plt.plot(Hu_Ico, Hu_alpha, color='tab:olive', ls='-', lw=2, marker='o', ms=5, label='Hu+22 (125-pc)')
+        plt.plot(Hu_Ico, Hu_alpha, color='tab:olive', ls='-', lw=2, marker='x', ms=6, label='Hu+22 (125-pc)')
         plt.plot(x_range_N12, alpha_Narayanan, 'k:', lw=2, label='Narayanan+12')
         plt.xlim(-0.7,3.2)
-        plt.xlabel(labels[2], fontsize=16)
+        plt.xlabel(labels[3], fontsize=16)
 
 if (colorcode==False or plot_type=='run_med'):
-    plt.legend(fontsize=14)  #, loc='lower left'
+    plt.legend(fontsize=13, markerscale=1.5)  # , loc='lower left' 
 
-plt.xlabel(labels[4], fontsize=16)  #'Galactocentric Radius (kpc)'
-plt.ylabel('', fontsize=16) 
+plt.xlabel(labels[2], fontsize=16)  # 'Galactocentric Radius (kpc)'
+plt.ylabel(labels[4], fontsize=16)  
 
-plt.savefig('bin2d_alpha_vs_tau21_whole3351_color_ratio21_ewsame_plus.pdf', bbox_inches='tight', pad_inches=0.02)
+plt.savefig('scatter_alpha_vs_ew21.pdf', bbox_inches='tight', pad_inches=0.02)
 plt.show()
+
