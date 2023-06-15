@@ -66,7 +66,7 @@ This document lists the general workflow and explains the usage of each script. 
 
 If you use the script(s) in your study, please cite the following papers:
 
-[1] Teng et al., "The Physical Drivers and Observational Tracers of CO-to-H2 Conversion Factor Variations in Nearby Barred Galaxy Centers", 2023, *The Astrophysical Journal (ApJ)*, arXiv:2304.04732. [[paper]](https://arxiv.org/abs/2304.04732)
+[1] Teng et al., "The Physical Drivers and Observational Tracers of CO-to-H2 Conversion Factor Variations in Nearby Barred Galaxy Centers", 2023, *The Astrophysical Journal (ApJ)*, 950, 119. [[paper]](https://iopscience.iop.org/article/10.3847/1538-4357/accb86)
 
 [2] Teng et al., "Molecular Gas Properties and CO-to-H2 Conversion Factors in the Central Kiloparsec of NGC 3351", 2022, *The Astrophysical Journal (ApJ)*, 925, 72. [[paper]](https://iopscience.iop.org/article/10.3847/1538-4357/ac382f)
 
