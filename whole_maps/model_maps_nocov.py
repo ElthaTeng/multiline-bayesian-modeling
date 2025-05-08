@@ -147,12 +147,12 @@ def prob1d_maps(x,y):
         return x, y, N_value, T_value, n_value, X1_value, X2_value, phi_value  
 
     elif output_map == 'median':
-        N_value = corner.quantile(Nco, [0.16,0.5,0.84], weights=prob)[2]  #0:neg1sig, 1:median, 2:pos1sig
-        T_value = corner.quantile(Tk, [0.16,0.5,0.84], weights=prob)[2]
-        n_value = corner.quantile(nH2, [0.16,0.5,0.84], weights=prob)[2]
-        X1_value = corner.quantile(X12to13, [0.16,0.5,0.84], weights=prob)[2]
-        X2_value = corner.quantile(X13to18, [0.16,0.5,0.84], weights=prob)[2]
-        phi_value = corner.quantile(phi, [0.16,0.5,0.84], weights=prob)[2]
+        N_value = corner.quantile(Nco, [0.16,0.5,0.84], weights=prob)[1]  #0:neg1sig, 1:median, 2:pos1sig
+        T_value = corner.quantile(Tk, [0.16,0.5,0.84], weights=prob)[1]
+        n_value = corner.quantile(nH2, [0.16,0.5,0.84], weights=prob)[1]
+        X1_value = corner.quantile(X12to13, [0.16,0.5,0.84], weights=prob)[1]
+        X2_value = corner.quantile(X13to18, [0.16,0.5,0.84], weights=prob)[1]
+        phi_value = corner.quantile(phi, [0.16,0.5,0.84], weights=prob)[1]
         return x, y, N_value, T_value, n_value, X1_value, X2_value, phi_value 
         
     else:
@@ -187,12 +187,12 @@ def prob1d_maps(x,y):
             cdf_phi = np.cumsum(phi_1d)
             cdf_phi /= cdf_phi[-1]          
 
-            N_value = np.interp(quantile_values[2], cdf_N, samples_Nco)
-            T_value = np.interp(quantile_values[2], cdf_T, samples_Tk)
-            n_value = np.interp(quantile_values[2], cdf_n, samples_nH2)
-            X1_value = np.interp(quantile_values[2], cdf_X1, samples_X12to13)
-            X2_value = np.interp(quantile_values[2], cdf_X2, samples_X13to18)
-            phi_value = np.interp(quantile_values[2], cdf_phi, samples_phi)
+            N_value = np.interp(quantile_values[1], cdf_N, samples_Nco)
+            T_value = np.interp(quantile_values[1], cdf_T, samples_Tk)
+            n_value = np.interp(quantile_values[1], cdf_n, samples_nH2)
+            X1_value = np.interp(quantile_values[1], cdf_X1, samples_X12to13)
+            X2_value = np.interp(quantile_values[1], cdf_X2, samples_X13to18)
+            phi_value = np.interp(quantile_values[1], cdf_phi, samples_phi)
             return x, y, N_value, T_value, n_value, X1_value, X2_value, phi_value 
 
 print('Start multi-processing on output maps')
